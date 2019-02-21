@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Sondre_lab_2</string>
+    <string-array name="NumberElementsShown">
+        <item>10</item>
+        <item>20</item>
+        <item>50</item>
+        <item>100</item>
+    </string-array>
+    <string-array name="FrequensyFetching">
+        <item>10 minutes</item>
+        <item>60 minutes</item>
+        <item>Once a day</item>
+    </string-array>
 </resources>

@@ -15,4 +15,76 @@
         android:text="Save changes"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/txtURL"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="35dp"
+        android:ems="5"
+        android:inputType="text"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtShow"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtShow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="13dp"
+        android:layout_marginEnd="3dp"
+        android:text="RSS feed"
+        app:layout_constraintBaseline_toBaselineOf="@+id/txtURL"
+        app:layout_constraintEnd_toStartOf="@+id/txtURL"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/txtShow2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="9dp"
+        android:layout_marginEnd="78dp"
+        android:text="Number of elements in list"
+        app:layout_constraintEnd_toStartOf="@+id/spinnerNumList"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtURL" />
+
+    <TextView
+        android:id="@+id/txtShow3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="35dp"
+        android:text="Frequensy of fetching"
+        app:layout_constraintEnd_toStartOf="@+id/spinnerFrequency"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShow2" />
+
+    <Spinner
+        android:id="@+id/spinnerNumList"
+        android:layout_width="0dp"
+        android:layout_height="34dp"
+        android:layout_marginTop="45dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="45dp"
+        android:entries="@array/NumberElementsShown"
+        app:layout_constraintBottom_toBottomOf="@+id/txtShow3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtShow2"
+        app:layout_constraintTop_toTopOf="@+id/txtURL" />
+
+    <Spinner
+        android:id="@+id/spinnerFrequency"
+        android:layout_width="0dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="25dp"
+        android:entries="@array/FrequensyFetching"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtShow3"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerNumList" />
 </android.support.constraint.ConstraintLayout>
