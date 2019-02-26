@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -38,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     public static String url;
     public static int numDisplayedElements, fetchFreq;
 
+    // List of RssFeedModel from feed, one feed per RssFeedModel
+    public static List newsList = new ArrayList<RssFeedModel>();
+
     // Menu elements
     Button debugButton;
 
@@ -50,13 +54,12 @@ public class MainActivity extends AppCompatActivity {
     TextView mFeedDescriptionTextView;
     TextView mFeedLinkTextView;
 
-   /* // Code from guide, didn't work and I should do it myself
-    // Values for use in feed
-    private List<RssFeedModel> mFeedModelList;
+    // Values for parseFeed
     private String mFeedTitle;
     private String mFeedLink;
     private String mFeedDescription;
-*/
+
+    // OnCreate, runs at the start
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,19 +80,19 @@ public class MainActivity extends AppCompatActivity {
         mFeedLinkTextView = findViewById(R.id.feedLink);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        
         // Listener for when the debug button is clicked to get data from the RSS feed
         debugButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // new FetchFeedTask().execute((Void) null);
+                new FetchFeedTask().execute("", "" ,"");
             }
         });
 
         mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // new FetchFeedTask().execute((Void) null);
+                new FetchFeedTask().execute("", "", "");
             }
         });
 
@@ -132,17 +135,17 @@ public class MainActivity extends AppCompatActivity {
                     fetchFreqLine = bufferedReader.readLine();
 
             // if url have been stored
-            if (urlLine != "") {
+            if (!urlLine.equals("")) {
                 url = urlLine;
             }
 
             // if numDisplayedElements have been stored
-            if (numDisplayLine != "") {
+            if (!numDisplayLine.equals("")) {
                 numDisplayedElements = Integer.parseInt(numDisplayLine);
             }
 
             // if fetchFreq have been stored
-            if (fetchFreqLine != "") {
+            if (!fetchFreqLine.equals("")) {
                 fetchFreq = Integer.parseInt(fetchFreqLine);
             }
             inputStreamReader.close(); // closes input stream
@@ -169,84 +172,127 @@ public class MainActivity extends AppCompatActivity {
         return returnThis;
     }
 
-    /*
     // Class with values of single feed item
-    public class RssFeedModel {
+    private class RssFeedModel {
+        private String title;
+        private String link;
+        private String description;
 
-        public String title;
-        public String link;
-        public String description;
-
-        public RssFeedModel(String title, String link, String description) {
+        private RssFeedModel(String title, String link, String description) {
             this.title = title;
             this.link = link;
             this.description = description;
         }
     }
+    // DEBUG
+    int debugValue = 0;
+    String testString = "";
 
-    // Class for fetching feed
-    private class FetchFeedTask extends AsyncTask<Void, Void, Boolean> {
+    // AsyncTask which shall update newsList
+    class FetchFeedTask extends AsyncTask<String, Void, Boolean>{
+        // Temporary list, replaces the old one afterwards
+        private  List temporaryList = new ArrayList<String>();
+        private String tempURL;
+
         @Override
         protected void onPreExecute() {
-            mSwipeLayout.setRefreshing(true);
+            //Setup precondition to execute some task
         }
 
+        // Gets feed and sets all translated elements into temporaryList
         @Override
-        protected Boolean doInBackground(Void... voids) {
-            if (TextUtils.isEmpty(url))
-                return false;
+        protected Boolean doInBackground(String... params) {
 
+            // DEBUG
+            tempURL = url;
             try {
-                if(!url.startsWith("http://") && !url.startsWith("https://"))
-                    url = "http://" + url;
+                if(!tempURL.startsWith("http://") && !tempURL.startsWith("https://"))
+                    tempURL = "http://" + url;
 
-                URL urlValue = new URL(url);
+                URL urlValue = new URL(tempURL);
                 InputStream inputStream = urlValue.openConnection().getInputStream();
-                mFeedModelList = parseFeed(inputStream);
+                // Error is located in parseFeed()
+                temporaryList = parseFeed(inputStream);  // gets list of items
+
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (XmlPullParserException e) {
                 e.printStackTrace();
             }
+
             return false;
         }
 
         @Override
-        protected void onPostExecute(Boolean success) {
-            mSwipeLayout.setRefreshing(false);
+        protected void onProgressUpdate(Void... value) {
+            //Update the progress of current task
+        }
 
-            if (success) {
-                mFeedTitleTextView.setText("Feed Title: " + mFeedTitle);
-                mFeedDescriptionTextView.setText("Feed Description: " + mFeedDescription);
-                mFeedLinkTextView.setText("Feed Link: " + mFeedLink);
-                // Fill RecyclerView
-                mRecyclerView.setAdapter(new RssFeedListAdapter(mFeedModelList));
-            } else {
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success) {  // If the attempt were successful
+                //Show the result obtained from doInBackground
+                newsList.clear();               // Clears the list of items so new ones can be added without problem
+                newsList.add(temporaryList);    // Adds all new elements into the list
+
                 Toast.makeText(MainActivity.this,
-                        "Enter a valid Rss feed url",
-                        Toast.LENGTH_LONG).show();
+                        debugValue + ", " + testString,
+                        Toast.LENGTH_SHORT).show();
+            } else {        // Failed attempt
+                Toast.makeText(MainActivity.this,
+                    "Enter a valid Rss feed url, DEBUG: " + debugValue, // debugValue is DEBUG
+                    Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     // RSS parse class
-    public List<RssFeedModel> parseFeed(InputStream inputStream) throws XmlPullParserException,
-            IOException {
+    public List<RssFeedModel> parseFeed(InputStream inputStream) throws XmlPullParserException, IOException {
         String title = null;
         String link = null;
         String description = null;
-        boolean isItem = false;
+        boolean isItem = false;     // if it is an item
+        // Temporary list
         List<RssFeedModel> items = new ArrayList<>();
 
-        try {
-            XmlPullParser xmlPullParser = Xml.newPullParser();
-            xmlPullParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            xmlPullParser.setInput(inputStream, null);
+        int countElements = 0; // Number of elements currently loaded
 
-            xmlPullParser.nextTag();
+        try {
+            debugValue = 1;
+            // Values needed for parsing
+            XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
+            XmlPullParser currentParser = xmlFactoryObject.newPullParser();
+
+            currentParser.setInput(inputStream, null);
+
+            debugValue++;
+
+            int event = currentParser.getEventType();
+            while (event != XmlPullParser.END_DOCUMENT && countElements++ < numDisplayedElements)  {
+                String name = currentParser.getName();
+                debugValue++;
+
+                testString = name; // DEBUG
+
+                switch (event){
+                    case XmlPullParser.START_TAG:
+                        break;
+                    case XmlPullParser.END_TAG:
+                        if(name.equals("item")){
+                            //temperature = currentParser.getAttributeValue(null,"value");
+                        }
+                        break;
+                }
+                event = currentParser.next();
+            }
+
+            /*
+            xmlPullParser.nextTag(); // ERROR is located here
             while (xmlPullParser.next() != XmlPullParser.END_DOCUMENT) {
                 int eventType = xmlPullParser.getEventType();
+
+
 
                 String name = xmlPullParser.getName();
                 if(name == null)
@@ -298,53 +344,10 @@ public class MainActivity extends AppCompatActivity {
                     isItem = false;
                 }
             }
-
+*/
             return items;
         } finally {
             inputStream.close();
         }
     }
-
-    // Feed list class
-    public class RssFeedListAdapter
-            extends RecyclerView.Adapter<RssFeedListAdapter.FeedModelViewHolder> {
-
-        private List<RssFeedModel> mRssFeedModels;
-
-        public class FeedModelViewHolder extends RecyclerView.ViewHolder {
-            private View rssFeedView;
-
-            public FeedModelViewHolder(View v) {
-                super(v);
-                rssFeedView = v;
-            }
-        }
-
-        public RssFeedListAdapter(List<RssFeedModel> rssFeedModels) {
-            mRssFeedModels = rssFeedModels;
-        }
-
-        @Override
-        public FeedModelViewHolder onCreateViewHolder(ViewGroup parent, int type) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_rss_feed, parent, false);
-            FeedModelViewHolder holder = new FeedModelViewHolder(v);
-            return holder;
-        }
-
-        @Override
-        public void onBindViewHolder(FeedModelViewHolder holder, int position) {
-            final RssFeedModel rssFeedModel = mRssFeedModels.get(position);
-            ((TextView)holder.rssFeedView.findViewById(R.id.titleText)).setText(rssFeedModel.title);
-            ((TextView)holder.rssFeedView.findViewById(R.id.descriptionText))
-                    .setText(rssFeedModel.description);
-            ((TextView)holder.rssFeedView.findViewById(R.id.linkText)).setText(rssFeedModel.link);
-        }
-
-        // Gets number of items
-        @Override
-        public int getItemCount() {
-            return mRssFeedModels.size();
-        }
-    }*/
 }
