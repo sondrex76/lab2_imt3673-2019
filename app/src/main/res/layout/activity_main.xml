@@ -9,11 +9,13 @@
 
     <EditText
         android:id="@+id/txtSearch"
-        android:layout_width="233dp"
+        android:layout_width="323dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        app:layout_constraintBaseline_toBaselineOf="@+id/btnOptions"
-        android:layout_marginStart="178dp" />
+        android:layout_marginStart="88dp"
+        android:maxLines="1"
+        android:inputType="text"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btnOptions" />
 
 
     <android.support.v4.widget.SwipeRefreshLayout
@@ -35,23 +37,12 @@
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <Button
-        android:id="@+id/btnDebugg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="2dp"
-        android:text="FORCE"
-        app:layout_constraintStart_toEndOf="@+id/btnOptions"
-        app:layout_constraintBaseline_toBaselineOf="@+id/btnOptions"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
         android:id="@+id/btnOptions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="89dp"
+        android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="93dp"
         android:text="Options"

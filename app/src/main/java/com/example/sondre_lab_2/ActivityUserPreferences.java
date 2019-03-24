@@ -12,25 +12,34 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 public class ActivityUserPreferences extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_preferences);
 
-        // If text field is not empty it will fill the text field with the current url
-        if (!TextUtils.isEmpty(MainActivity.url)) {
+        // runs code for start
+        startCode();
+    }
 
+    // checks if string is empty, used for testing
+    protected Boolean emptyURL(String value) {
+        return (TextUtils.isEmpty(value));
+    }
+
+    // returns an int for testing purposes
+    protected int startCode() {
+        // If text field is not empty it will fill the text field with the current url
+        if (!emptyURL(MainActivity.url)) {
             // Sets the Text
             final EditText URL = findViewById(R.id.txtURL);
             URL.setText(MainActivity.url);
-        }
+        } else { return -1; }
 
         // If number of elements have been defined it will select the correct value
         if (MainActivity.numDisplayedElements != 0) {
             final Spinner numberElementsSpinner = findViewById(R.id.spinnerNumList);
             numberElementsSpinner.setSelection(((ArrayAdapter)numberElementsSpinner.getAdapter()).getPosition("" + MainActivity.numDisplayedElements));
-        }
+        } else { return -2; }
 
         // If frequency have been defined it will select the correct value
         if (MainActivity.fetchFreq != 0) {
@@ -46,7 +55,7 @@ public class ActivityUserPreferences extends AppCompatActivity {
                     numberElementsSpinner.setSelection(2);
                     break;
             }
-        }
+        } else { return -3; }
 
         // On save
         final Button transfer = findViewById(R.id.btnSave);
@@ -67,18 +76,16 @@ public class ActivityUserPreferences extends AppCompatActivity {
                 final Spinner numberElementsSpinner = findViewById(R.id.spinnerFrequency);
                 switch (numberElementsSpinner.getSelectedItem().toString()) {
                     case "10 minutes":
-                        MainActivity.fetchFreq =  1;
-                    break;
+                        MainActivity.fetchFreq =  MainActivity.translateFrequency(3);
+                        break;
                     case "60 minutes":
-                        MainActivity.fetchFreq =  2;
-                    break;
+                        MainActivity.fetchFreq =  MainActivity.translateFrequency(1);
+                        break;
                     case "Once a day":
-                        MainActivity.fetchFreq =  3;
-                    break;
-                    default:    // In case an invalid result occurs, DEBUG
-                        Toast.makeText(ActivityUserPreferences.this,
-                                "Error, update rate not returning valid value",
-                                Toast.LENGTH_SHORT).show();
+                        MainActivity.fetchFreq =  MainActivity.translateFrequency(2);
+                        break;
+                    default:    // In case an invalid result occurs, sets value to lowest(10 min)
+                        MainActivity.fetchFreq =  MainActivity.translateFrequency(3);
                         break;
                 }
 
@@ -86,5 +93,6 @@ public class ActivityUserPreferences extends AppCompatActivity {
                 finish(); // Ends this activity and goes back to parent
             }
         });
+        return 1;
     }
 }
