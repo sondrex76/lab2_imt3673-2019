@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -33,17 +34,18 @@ public class ActivityUserPreferences extends AppCompatActivity {
             // Sets the Text
             final EditText URL = findViewById(R.id.txtURL);
             URL.setText(MainActivity.url);
-        } else { return -1; }
+        }
+
+        final Spinner numberElementsSpinner = findViewById(R.id.spinnerNumList);
+
 
         // If number of elements have been defined it will select the correct value
         if (MainActivity.numDisplayedElements != 0) {
-            final Spinner numberElementsSpinner = findViewById(R.id.spinnerNumList);
             numberElementsSpinner.setSelection(((ArrayAdapter)numberElementsSpinner.getAdapter()).getPosition("" + MainActivity.numDisplayedElements));
-        } else { return -2; }
+        }
 
         // If frequency have been defined it will select the correct value
         if (MainActivity.fetchFreq != 0) {
-            final Spinner numberElementsSpinner = findViewById(R.id.spinnerFrequency);
             switch (MainActivity.fetchFreq) {
                 case 1: // 10 minutes
                     numberElementsSpinner.setSelection(0);
@@ -55,7 +57,9 @@ public class ActivityUserPreferences extends AppCompatActivity {
                     numberElementsSpinner.setSelection(2);
                     break;
             }
-        } else { return -3; }
+        } else {numberElementsSpinner.setSelection(0); }
+
+        Log.d("Test", "HERE");
 
         // On save
         final Button transfer = findViewById(R.id.btnSave);
